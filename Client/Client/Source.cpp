@@ -28,9 +28,26 @@ int main()
 	}
 	else
 	{
-		std::cout << "Connected" << std::endl;
-		std::cout << "Hello World" << std::endl;
+		std::cout << "Connected to server!\n" << std::endl;
+
+		for(int i=0;i<10;i++) {
+
+			printf("Sending char: %d\n", i);
+
+			char sendBuf[1];
+			sendBuf[0] = i;
+
+			if(send(Connection, sendBuf, 1, 0) == SOCKET_ERROR) {
+				printf("send() failed with error code: %d\n", WSAGetLastError());
+			}
+		}
+
 	}
+
+	printf("Closing socket to server: %d\n", Connection);
+
+	closesocket(Connection);
+	WSACleanup();
 
 	system("pause");
 

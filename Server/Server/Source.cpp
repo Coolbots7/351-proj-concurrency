@@ -2,6 +2,35 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <iostream>
+#include <process.h>
+
+unsigned __stdcall ClientHandler(void *data) {
+	SOCKET ClientSocket = (SOCKET)data;
+
+	while(true) {
+
+		char receiveBuffer[1];
+		int recv_len = recv(ClientSocket, receiveBuffer, 1, 0);
+		if (recv_len == 0)
+		{
+			printf("Client %d disconnected\n", ClientSocket);
+			break;
+		}
+		else if(recv_len == SOCKET_ERROR)
+		{
+			printf("Socket descriptor, after recv(): %d\n", ClientSocket);
+			printf("recv() failed with error code: %d\n", WSAGetLastError());
+			break;
+		}
+
+		printf("Received char %d from client %d\n", receiveBuffer[0], ClientSocket);
+
+	}
+
+	printf("Closing socket to client: %d\n", ClientSocket);
+	closesocket(ClientSocket);
+	return 0;
+}
 
 int main()
 {
@@ -23,18 +52,20 @@ int main()
 	bind(sListen, (SOCKADDR*)&addr, sizeof(addr));
 	listen(sListen, SOMAXCONN);
 
+	std::cout << "SERVER STARTED\n\n";
+
 	SOCKET newConnection;
-	newConnection = accept(sListen, (SOCKADDR*)&addr, &addrlen);
-	if (newConnection == 0)
+	while((newConnection = accept(sListen, (SOCKADDR*)&addr, &addrlen)))
 	{
-		std::cout << "Failed to accept the client's connection." << std::endl;
+		std::cout << "\nNew Client!...";
+
+		//Start new thread
+		unsigned ThreadID;
+		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &ClientHandler, (void*)newConnection, 0, &ThreadID);
+
+		printf("Started thread %d for client %d\n", ThreadID, newConnection);
 	}
-	else
-	{
-		std::cout << "Client Connected!" << std::endl;
-		//char MOTD[256] = "Welcome! This is the message of the day.";
-		//send(newConnection, MOTD, sizeof(MOTD), NULL);
-	}
+
 	system("pause");
 	return 0;
 }
