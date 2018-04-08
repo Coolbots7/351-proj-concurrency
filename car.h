@@ -1,7 +1,7 @@
 //car class
 //Brian: Cars and threading
 //Beau: Threading
-
+#pragma once
 #include <cstdio>
 #include <cstdlib>
 

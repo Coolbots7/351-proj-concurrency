@@ -3,14 +3,22 @@
 #include <WinSock2.h>
 #include <iostream>
 #include <process.h>
+#include "intersection.h"
+
+Intersection ServerIntersection;
+
+struct ClientMessage {
+	byte Action;
+	byte Quadrant;
+};
 
 unsigned __stdcall ClientHandler(void *data) {
 	SOCKET ClientSocket = (SOCKET)data;
 
 	while(true) {
 
-		char receiveBuffer[1];
-		int recv_len = recv(ClientSocket, receiveBuffer, 1, 0);
+		char *data = new char[sizeof(ClientMessage)];
+		int recv_len = recv(ClientSocket, data, sizeof(data), 0);
 		if (recv_len == 0)
 		{
 			printf("Client %d disconnected\n", ClientSocket);
@@ -23,7 +31,29 @@ unsigned __stdcall ClientHandler(void *data) {
 			break;
 		}
 
-		printf("Received char %d from client %d\n", receiveBuffer[0], ClientSocket);
+		ClientMessage message;
+		memcpy(&message, data, sizeof(data));
+
+		printf("Received values %d, %d from client %d\n", message.Action, message.Quadrant, ClientSocket);
+
+		switch(message.Action) {
+			case 0:
+
+				//Blocking wait to lock requested quadrant
+				ServerIntersection.LockQuadrant(message.Quadrant);
+
+
+				char response[1];
+				response[0] = 1;
+
+				//Respond to client that quadrant has been locked
+				send(ClientSocket, response, sizeof(response), 0);
+
+				break;
+			case 1:
+				ServerIntersection.UnlockQuadrant(message.Quadrant);
+				break;
+		}
 
 	}
 

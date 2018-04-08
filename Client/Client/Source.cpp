@@ -3,53 +3,27 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <iostream>
+#include "Lane.h"
+#include <process.h>
+
+unsigned __stdcall LaneHandler(void* data) {
+	Lane lane((int)data);
+
+	lane.Run();
+
+	lane.Close();
+
+	return 0;
+}
 
 int main()
 {
-	WSAData wsaData;
-	WORD DllVersion = MAKEWORD(2, 1);
-	if (WSAStartup(DllVersion, &wsaData) != 0)
-	{
-		MessageBoxA(NULL, "Winsock startup failed", "Error", MB_OK | MB_ICONERROR);
-		exit(1);
+	for(int i=0;i<4;i++) {
+		unsigned ThreadID;
+		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &LaneHandler, (void*) i, 0, &ThreadID);
 	}
 
-	SOCKADDR_IN addr;
-	int sizeofaddr = sizeof(addr);
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	addr.sin_port = htons(1111);
-	addr.sin_family = AF_INET;
-
-	SOCKET Connection = socket(AF_INET, SOCK_STREAM, NULL);
-	if (connect(Connection, (SOCKADDR*)&addr, sizeofaddr) != 0)
-	{
-		MessageBoxA(NULL, "Failed to Connect", "Error", MB_OK | MB_ICONERROR);
-		return 0;
-	}
-	else
-	{
-		std::cout << "Connected to server!\n" << std::endl;
-
-		for(int i=0;i<10;i++) {
-
-			printf("Sending char: %d\n", i);
-
-			char sendBuf[1];
-			sendBuf[0] = i;
-
-			if(send(Connection, sendBuf, 1, 0) == SOCKET_ERROR) {
-				printf("send() failed with error code: %d\n", WSAGetLastError());
-			}
-		}
-
-	}
-
-	printf("Closing socket to server: %d\n", Connection);
-
-	closesocket(Connection);
 	WSACleanup();
-
 	system("pause");
-
 	return 0;
 }

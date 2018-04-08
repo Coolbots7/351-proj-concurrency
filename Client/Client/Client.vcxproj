@@ -145,6 +145,12 @@
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\car.h" />
+    <ClInclude Include="..\..\CarList.h" />
+    <ClInclude Include="Lane.h" />
+    <ClInclude Include="RPCClient.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
