@@ -34,7 +34,18 @@ unsigned __stdcall ClientHandler(void *data) {
 		ClientMessage message;
 		memcpy(&message, data, sizeof(data));
 
-		printf("Received values %d, %d from client %d\n", message.Action, message.Quadrant, ClientSocket);
+		printf("Received request to");
+
+		switch (message.Action) {
+		case 0:
+			printf(" lock");
+			break;
+		case 1:
+			printf(" unlock");
+			break;
+		}
+
+		printf(" quadrant %d from client %d.\n", message.Quadrant, ClientSocket);
 
 		switch(message.Action) {
 			case 0:

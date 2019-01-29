@@ -2,7 +2,7 @@
 #include "../../CarList.h"
 #include "../../car.h"
 
-int TRAVEL_TIME = 500;
+int TRAVEL_TIME = 300;
 
 class Lane {
 private:
@@ -291,6 +291,9 @@ public:
 
 	void Run() {
 		while(!queue->isEmpty()) {
+
+			printf("Direction: %d - ", this->Direction);
+
 			switch(Direction) {
 				case 0:
 					simN(queue->dequeue());
